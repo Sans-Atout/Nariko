@@ -1,3 +1,5 @@
+# vocal-remover lib
+
 #ffmepg>=1.4.0
 moviepy>=1.0.3
 # install from https://pytorch.org/get-started/locally/
@@ -8,12 +10,15 @@ librosa>=0.6.3,<0.9
 opencv_python>=4.2.0
 imageio_ffmpeg>=0.4.7
 
+# Romanji Lib
+unidic-lite>=1.0.8
+cutlet>=0.1.19
 
+# DejaVu Lib
 pydub>=0.23.1
 PyAudio>=0.2.11
-numpy>=1.17.2
+numpy==1.21.2
 scipy>=1.3.1
 matplotlib>=3.1.1
 mysql-connector-python>=8.0.17
 psycopg2>=2.8.3
-pysmb>=1.2.7

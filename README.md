@@ -22,20 +22,30 @@ cp nariko.ini.example nariko.ini
 pip install -r requirements.txt
 ```
 
-### Create Database
+## Script explanation
 
+### add_anime_music.py
+
+```shell
+./add_anime_music.py -i PATH
+```
+
+**PATH** : The folder path where every music could be found
+
+## Create Database
+
+### DejaVu tables
+
+There is no need to create any database for the DejaVu code. The tables used by dejavu are :
+```
+ Schema |     Name     | Type  |  Owner  
+--------+--------------+-------+---------
+ public | fingerprints | table |         
+ public | songs        | table |         
+```
+
+### Project tables
 //TODO
-
-## Run program
-
-//TODO
-
-## Known issue
-
-### Issue #0 : incompatibility between the dejavu project and vocal-remover
-
-**P:** Incompatibility of the two projects
-**A:** Another project will be set up to process the data extracted via this first project. This project will only serve this purpose and for the moment it has not been decided whether it will also process the extracted data or not 
 
 ## Todo List :
 
@@ -44,7 +54,7 @@ pip install -r requirements.txt
 * [x] Extract audio from video file
 * [x] Create multiple audio clip
 * [x] Clean these audio clip with [vocal-remover](https://github.com/tsurumeso/vocal-remover/)
-* [ ] Upload of the clean file in a SMB share
 * [ ] Delete audio files already processed
-* [ ] Extract audio information with DejaVu project
+* [x] Add anime OST fingerprint
+* [ ] Extract audio information with [DejaVu code](https://github.com/worldveil/dejavu)
 * [ ] Processing of this information to retrieve a chronological list of OSTs with their start and end time stamps

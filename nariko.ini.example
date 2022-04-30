@@ -2,3 +2,12 @@
 path=
 prod_env=
 extension=
+
+[database]
+name=
+password=
+db_name=
+
+[host_info]
+host=
+type=
