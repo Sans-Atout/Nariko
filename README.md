@@ -39,12 +39,12 @@ pip install -r requirements.txt
 
 ## Todo List :
 
-* [] Extract anime name from folder or file
-* [] Save in a database which files are associated with which "hash"
+* [ ] Extract anime name from folder or file
+* [ ] Save in a database which files are associated with which "hash"
 * [x] Extract audio from video file
 * [x] Create multiple audio clip
 * [x] Clean these audio clip with [vocal-remover](https://github.com/tsurumeso/vocal-remover/)
-* [] Upload of the clean file in a SMB share
-* [] Delete audio files already processed
-* [] Extract audio information with DejaVu project
-* [] Processing of this information to retrieve a chronological list of OSTs with their start and end time stamps
+* [ ] Upload of the clean file in a SMB share
+* [ ] Delete audio files already processed
+* [ ] Extract audio information with DejaVu project
+* [ ] Processing of this information to retrieve a chronological list of OSTs with their start and end time stamps
