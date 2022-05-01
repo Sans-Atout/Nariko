@@ -139,7 +139,6 @@ def clean_audio_extract(_input,_output):
     log.info('loading wave source...')
     X, sr = librosa.load(
         _input, _SR, False, dtype=np.float32, res_type='kaiser_fast')
-    #basename = os.path.splitext(os.path.basename(_input))[0]
     log.done('Wawe loaded succesfuly')
 
     if X.ndim == 1:

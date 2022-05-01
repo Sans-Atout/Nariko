@@ -1,4 +1,5 @@
 from dejavu import Dejavu
+from dejavu.logic.recognizer.file_recognizer import FileRecognizer
 
 #python librairie for log
 from configparser import ConfigParser
@@ -7,6 +8,7 @@ from python_tracer.Logger import VerboseLevel,Logger
 #External librairie
 from os import listdir, rename
 from cutlet import Cutlet
+from os.path import basename
 
 config = ConfigParser()
 config.read("nariko.ini")
@@ -53,4 +55,15 @@ def add_fingerprint(_path):
     log.done("Rename complete")
     return 0
 
-#def
+def add_one_file(_path):
+    song_name = basename(_path)
+    log.info("File is : %s" % song_name)
+    log.info("Insert into DejaVu")
+    djv.fingerprint_file(_path, song_name)
+    log.done("complete !")
+    return 0
+
+def test_music(_path):
+    song = djv.recognize(FileRecognizer, _path)
+    log.debug(song)
+    return song
