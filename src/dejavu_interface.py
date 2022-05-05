@@ -65,5 +65,5 @@ def add_one_file(_path):
 
 def test_music(_path):
     song = djv.recognize(FileRecognizer, _path)
-    log.debug(song)
+    #log.debug(song)
     return song

@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 ### add_anime_music.py
 
-```shell
+```console
 ./add_anime_music.py -i PATH
 ```
 
@@ -37,7 +37,7 @@ pip install -r requirements.txt
 ### DejaVu tables
 
 There is no need to create any database for the DejaVu code. The tables used by dejavu are :
-```
+```shell
  Schema |     Name     | Type  |  Owner  
 --------+--------------+-------+---------
  public | fingerprints | table |         
@@ -50,11 +50,24 @@ There is no need to create any database for the DejaVu code. The tables used by 
 ## Todo List :
 
 * [ ] Extract anime name from folder or file
-* [ ] Save in a database which files are associated with which "hash"
+* [ ] Save in a database which files are associated with which "hash" (en cours)
 * [x] Extract audio from video file
 * [x] Create multiple audio clip
 * [x] Clean these audio clip with [vocal-remover](https://github.com/tsurumeso/vocal-remover/)
-* [ ] Delete audio files already processed
+* [x] Delete audio files already processed
 * [x] Add anime OST fingerprint
 * [ ] Extract audio information with [DejaVu code](https://github.com/worldveil/dejavu)
 * [ ] Processing of this information to retrieve a chronological list of OSTs with their start and end time stamps
+
+## DejaVu result analysis 
+
+Here is an entity representing a result according to our criteria: 
+```json
+{
+	"id" : dejavu_item["song_id"], // int
+	"name" : dejavu_item["song_name"], // string
+	"detection_accuracy" : dejavu_item["hashes_matched_in_input"] // int
+}
+```
+
+When retrieving multiple results, the results must be passed as a percentage.
