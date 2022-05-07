@@ -1,5 +1,6 @@
-#ffmepg>=1.4.0
+# Clip creation
 moviepy>=1.0.3
+imageio_ffmpeg>=0.4.7
 
 # Romanji Lib
 unidic-lite>=1.0.8
