@@ -5,7 +5,7 @@ from python_tracer.Logger import VerboseLevel,Logger
 from argparse import ArgumentParser
 
 #Personnal librairie
-from src.dejavu_interface import add_fingerprint, add_one_file
+from src.database.dejavu import add_fingerprint, add_one_file
 from os.path import exists, isdir
 
 config = ConfigParser()
