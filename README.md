@@ -7,8 +7,6 @@ This project aims to know exactly which OST was played at which time in an anime
 ## Open source project used
 
 * [worldveil/dejavu](https://github.com/worldveil/dejavu)
-* [tsurumeso/vocal-remover](https://github.com/tsurumeso/vocal-remover/)
-
 
 ## Installation
 
@@ -53,7 +51,6 @@ There is no need to create any database for the DejaVu code. The tables used by 
 * [ ] Save in a database which files are associated with which "hash" (en cours)
 * [x] Extract audio from video file
 * [x] Create multiple audio clip
-* [x] Clean these audio clip with [vocal-remover](https://github.com/tsurumeso/vocal-remover/)
 * [x] Delete audio files already processed
 * [x] Add anime OST fingerprint
 * [ ] Extract audio information with [DejaVu code](https://github.com/worldveil/dejavu)
