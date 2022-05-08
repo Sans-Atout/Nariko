@@ -10,6 +10,7 @@ from python_tracer.Logger import VerboseLevel,Logger
 from os import listdir, rename
 from os.path import exists, isdir, basename
 from re import findall
+
 from pandas import DataFrame
 from moviepy.editor import AudioFileClip
 from cutlet import Cutlet
@@ -205,3 +206,102 @@ def add_one_file(_path):
     djv.fingerprint_file(_path, song_name)
     log.done("complete !")
     return 0
+
+def recover_ost(song_detected:DataFrame, clip_duration:int):
+    """
+        Recover all possible OST from a DejaVu detection Dataframe
+            Parameters:
+                song_detected (DataFrame): DejaVu dataframe containing the clip_id, the song found and the song score
+                clip_duration       (int): Duration of one clip
+            
+            Returns:
+                episode_ost       (array): array containing every ost with time stamp
+    """
+    episode_ost = []
+
+    sorted_song = song_detected.groupby(['song_id'])['clip_id', 'song_score']
+
+    for _key in sorted_song.groups.keys():
+        song = _key[2:len(_key)-1]
+        _episode = treat_one_ost(sorted_song.get_group(_key), song, clip_duration)
+        episode_ost.extend(_episode)
+    log.debug(episode_ost)    
+    exit(0)
+    return episode_ost
+
+def treat_one_ost(ost_df:DataFrame,song_name:str,clip_duration:int):
+    """
+        Recover all possible OST from a DejaVu detection Dataframe
+            Parameters:
+                ost_df        (DataFrame): DejaVu dataframe containing one OST information
+                song_name           (str): song name
+                clip_duration       (int): clip's duration
+            
+            Returns:
+                episode_ost        (list): array containing all the ost info
+    """
+
+    all_ost = ost_df[["clip_id","song_score"]]
+    all_ids = list(ost_df['clip_id'])
+    all_ids.sort()
+    tmp = { 'has_occurence' : False, 'start_time' : -1, 'one_consecutive_gap' : -1,'complete' : False, "end_time" : -1}
+    start_end_tupple = []
+    episode_ost = []
+
+    # Recover all potential song 
+    for x_id in range(len(all_ids) -1):
+
+        if (not tmp["has_occurence"]) and (all_ids[x_id] +1) == all_ids[x_id+1]:
+            tmp['has_occurence'] = True
+            tmp['start_time'] = all_ids[x_id]
+            tmp['one_consecutive_gap'] = 1
+        
+        if tmp["has_occurence"] and (all_ids[x_id] +1) == all_ids[x_id+1]:
+            tmp["one_consecutive_gap"] = tmp["one_consecutive_gap"] + 1
+
+        if tmp["has_occurence"] and (not all_ids[x_id] +1 == all_ids[x_id+1]):
+            if tmp["one_consecutive_gap"] > 5 and (all_ids[x_id] + 5 >= all_ids[x_id+1]):
+                tmp["one_consecutive_gap"] = -1
+            else: 
+                tmp["complete"] = True
+                tmp["end_time"] = all_ids[x_id-1]
+        
+        if tmp["has_occurence"] and tmp["complete"] : 
+            if (tmp["end_time"] - tmp["start_time"]) > clip_duration:
+                start_time  = clip_id_to_seconds(tmp["start_time"], clip_duration)
+                end_time    = clip_id_to_seconds(tmp["end_time"], clip_duration)
+                start_end_tupple.append( (start_time, end_time) )
+                
+            tmp = { 'has_occurence' : False, 'start_time' : -1, 'one_consecutive_gap' : -1, 'complete' : False, "end_time" : -1}
+
+    if tmp["has_occurence"] and not tmp["complete"]:
+        if (all_ids[len(all_ids) -1] - tmp["start_time"]) > clip_duration:
+            start_time  = clip_id_to_seconds(tmp["start_time"], clip_duration)
+            end_time    = clip_id_to_seconds(all_ids[len(all_ids) -1], clip_duration)
+            start_end_tupple.append( (start_time, end_time) )
+
+    # Deduce if all potential song are a real song or not
+    for start, end in start_end_tupple:
+        tmp_score = []
+        for idx, row in all_ost.iterrows():
+            clip_in_s = clip_id_to_seconds(row["clip_id"], clip_duration)
+            if clip_in_s >= start and clip_in_s <= end:
+                tmp_score.append(row["song_score"])
+        
+        if  mean(tmp_score) >= 50:
+            episode_ost.append({"name" : song_name, "strat" : start, "end" : end})
+        
+
+    return episode_ost
+
+def clip_id_to_seconds(clip_id:int,clip_duration:int):
+    """
+        Convert clip_id to second 
+        Parameters:
+            clip_id          (int): the clip_id
+            clip_duration    (int): duration of one clip
+
+        Returns:
+            seconds          (int): conversion of clip_id into second 
+    """
+    return clip_id -1 + clip_duration - 5
