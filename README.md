@@ -23,9 +23,19 @@ You also need to install ffmpeg software
 ## add_anime_music.py
 
 ```console
-chmod +x add_anime_music.py
 ./add_anime_music.py -i PATH
 ```
+
+**PATH** : The folder path where every music could be found
+
+## management.py
+
+```console
+./management.py [--reset/--init/--purge]
+```
+- **--init** : Initialise the project 
+- **--purge** : #TODO
+- **--reset** : #TODO 
 
 **PATH** : The folder path where every music could be found
 
@@ -61,13 +71,14 @@ There is no need to create any database for the DejaVu code. The tables used by 
 # Todo List :
 
 * [ ] Extract anime name from folder or file
-* [ ] Save in a database which files are associated with which "hash" (en cours)
+* [ ] Save in a database which files are associated with which "hash" (In progress)
 * [x] Extract audio from video file
 * [x] Create multiple audio clip
 * [x] Delete audio files already processed
 * [x] Add anime OST fingerprint
 * [x] Extract audio information with [DejaVu code](https://github.com/worldveil/dejavu)
-* [ ] Processing of this information to retrieve a chronological list of OSTs with their start and end time stamps
+* [x] Processing of this information to retrieve a chronological list of OSTs with their start and end time stamps
+* [ ] Deal with overlapping
 
 # Some explanations on the project 
 ## DejaVu result analysis 
