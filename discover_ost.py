@@ -18,8 +18,18 @@ extension   = config.get("log", "extension")
 log = Logger(log_path,log_level,service_name="nariko", log_extension=extension)
 if __name__ == '__main__':
     parser = ArgumentParser(description="Script allowing to add to the already seen database the musics of the various animes")
-    parser.add_argument('-i','--input', type=str, required=False, help="the anime input file")
-
+    parser.add_argument('-i','--input', type=str, required=True, help="Anime input file")
+    parser.add_argument('-n','--name', type=str, required=True, help="Anime name")
+    parser.add_argument('-s','--saison', type=int, required=True, help="Anime saison number")
+    parser.add_argument('-e','--episode', type=int, required=True, help="Anime episode number")
+    parser.add_argument('--oav', action='store_true',required=False, help="Is the episode an OAV ?")
     args = parser.parse_args()
-    video_file = args.input
+
+    # get all arguments
+    video_path      = args.input
+    episode_name    = args.name
+    saison_nb       = int(args.saison)
+    episode_nb      = int(args.episode)
+    is_oav          = args.oav
+
     

@@ -20,7 +20,7 @@ log_level   = int(config.get("log", "prod_env"))
 log_path    = config.get("log", "path")
 extension   = config.get("log", "extension")
 
-log = Logger(log_path,log_level,service_name="initialisation", log_extension=extension)
+log = Logger(log_path,log_level,service_name="init", log_extension=extension)
 
 # Deja vu configuration
 db_name     = config.get("database", "db_name")
@@ -99,13 +99,6 @@ if __name__ == '__main__':
         else:
             log.warning("The storing audio extract's folder from video allready exist")
         log.done("Project folder created")
-        log.info("Create nariko.ini file")
-        if not exists("nariko.ini"):
-            copy("nariko.ini.example","nariko.ini")
-            log.warning("You must modify ini file for the program to work")
-        else:
-            log.error("init file allready exist")
-        log.done("Task complete")
         exit(0)
 
 
