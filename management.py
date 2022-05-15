@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 from shutil import copy 
 
 # database creation function
-from src.database.episode_info import episode_table_creation
+from src.database.episode_info import episode_table_creation as ep_create, purge_table as ep_purge, drop_table as ep_drop
 
 # Log variable initialisation
 config = ConfigParser()
@@ -59,12 +59,23 @@ if __name__ == '__main__':
             exit(-1)
 
     if _purge:
-        log.error("Database Purge not implemented all ready")
+        log.info("Purge project tables :")
+        ep_purge()
+        log.done("All project specific tables are purge now")
+        log.info("Purge DejaVu tables :")
+        log.warning("#TODO")
+        log.done("All DejaVu tables are purge")
+        log.error("Database Purge is not fully implemented")
         # TODO : implement purge procedure
         exit(0)
 
     if _reset:
-        log.error("Database reset not implemented all ready")
+        log.info("Reset project tables :")
+        log.warning("table episode_info [1/2] : dropping")
+        ep_drop()
+        log.debug("table episode_info [2/2] : create table")
+        ep_create()
+        log.error("Database Reset is not fully implemented")
         # TODO : implement reset procedure
         exit(0)
 
@@ -74,7 +85,7 @@ if __name__ == '__main__':
         log.done("DejaVu database succesfuly created")
 
         log.info("Episode information table creation")
-        episode_table_creation()
+        ep_create()
         log.done("Table creation succesfuly created")
 
         log.info("Project folder creation")

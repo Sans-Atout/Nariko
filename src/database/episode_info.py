@@ -18,7 +18,7 @@ host     = config.get("host_info", "host")
 port     = config.get("host_info", "port")
 db_name  = config.get("database", "db_name")
 
-log = Logger(log_path,log_level,service_name="name-extractor", log_extension=extension)
+log = Logger(log_path,log_level,service_name="database", log_extension=extension)
 
 # SQL command
 episode_psql_creation = '''CREATE TABLE episode_info (
@@ -29,11 +29,15 @@ episode_psql_creation = '''CREATE TABLE episode_info (
                                 clip_duration INT NOT NULL ,
                                 hash VARCHAR(42) NOT NULL,
                                 done_at INT NULL,
+                                is_oav BOOLEAN NOT NULL,
                                 PRIMARY KEY (id));'''
 
 insert_new_episode_psql = '''INSERT INTO 
                                 episode_info ( anime_name, saison, episode, clip_duration, hash, done_at ) 
                                 VALUES ( %(name)s, %(saison)s, %(episode)s, %(clip_duration)s, %(hash)s, %(done_at)s );'''
+
+purge_episode_table_psql = '''TRUNCATE TABLE episode_info;'''
+purge_episode_table_psql = '''DROP TABLE episode_info;'''
 
 is_in_db_psql = ''' SELECT id FROM episode_info WHERE anime_name=%(name)s AND saison=%(saison)s AND episode=%(episode)s ;'''
 
@@ -178,3 +182,58 @@ def is_in_db(name:str,saison:int, episode:int):
         log.error(error)
         return False, 400
 
+def purge_table():
+    """
+        Purging the episode_info table
+            Parameters:
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(purge_episode_table_psql)
+        connexion.commit()
+        end_connexion(connexion, cursor)
+        return True, 200
+
+    
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400
+
+def drop_table():
+    """
+        Drop the episode_info table
+            Parameters:
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(purge_episode_table_psql)
+        connexion.commit()
+        end_connexion(connexion, cursor)
+        return True, 200
+
+    
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400
