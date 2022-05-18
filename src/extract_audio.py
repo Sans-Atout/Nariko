@@ -21,7 +21,7 @@ config.read("nariko.ini")
 log_level       = int(config.get("log", "prod_env"))
 log_path        = config.get("log", "path")
 extension       = config.get("log", "extension")
-log = Logger(log_path,log_level,service_name="extract-audio", log_extension=extension)
+log = Logger(log_path,log_level,service_name="audio", log_extension=extension)
 
 # Audio file extract from an video file
 extract_path = "./tmp/audio-extract/extract-%(file_name)s.mp3"

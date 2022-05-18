@@ -14,6 +14,7 @@ from re import findall
 from pandas import DataFrame
 from moviepy.editor import AudioFileClip
 from cutlet import Cutlet
+from statistics import mean
 
 # Init file parsing
 config = ConfigParser()
@@ -41,7 +42,7 @@ CONFIG = {
 }
 
 # Log object creation
-log = Logger(log_path,log_level,service_name="dejavu-interface", log_extension=extension)
+log = Logger(log_path,log_level,service_name="dejavu", log_extension=extension)
 
 # Romanji object creation
 log.info("Romanji converter creation")
@@ -75,7 +76,7 @@ def episode_processing(episode_path:str, clip_duration:int):
 
     for file_id in range(nb_files):
         _file = _dir[file_id]
-        log.avancement(100*(file_id+1)/nb_files, str(clip_duration))
+        log.avancement(100*(file_id+1)/nb_files, str(file_id+1)+'/'+str(nb_files))
         # Get the number of the clip
         clip_number = int(findall('\d+',_file)[0])
         song_found = recover_information(episode_path+_file, clip_duration,clip_number)

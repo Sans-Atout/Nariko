@@ -6,12 +6,12 @@ from os.path import basename
 
 
 config = ConfigParser()
-config.read("init_files/nariko.ini")
+config.read("nariko.ini")
 log_level       = int(config.get("log", "prod_env"))
 log_path        = config.get("log", "path")
 extension       = config.get("log", "extension")
 
-log = Logger(log_path,log_level,service_name="name-extractor", log_extension=extension)
+log = Logger(log_path,log_level,service_name="name", log_extension=extension)
 
 def get_anime_info(file_path:str):
     """
