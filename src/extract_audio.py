@@ -6,9 +6,10 @@ from python_tracer.Logger import VerboseLevel,Logger
 from src.extract_anime_info import get_anime_info
 
 # Clip creation libraires
-from moviepy.editor import VideoFileClip, AudioFileClip
 from imageio_ffmpeg import get_ffmpeg_exe
 import subprocess as sp
+from moviepy.editor import AudioFileClip
+
 
 # Other external libraires
 from random import randint
@@ -44,13 +45,15 @@ def extract_audio_from_video(video_path:str):
 
     log.info("The hash value for this path is : %s" % hash_value)
     # extract audio from video
-    videoclip=VideoFileClip(video_path)
-    audioclip=videoclip.audio
-    videoclip.close()
+    log.info("Extracting audio")
+    ffmpeg = get_ffmpeg_exe()
 
-    # save audio file
-    audioclip.write_audiofile(path)
-    audioclip.close()
+    sp.call([ffmpeg, "-y", "-i", video_path, path], 
+                stderr=sp.DEVNULL,
+                stdout=sp.DEVNULL
+            )
+
+
     log.done("File write in %s" % path)
 
     return path, hash_value
@@ -81,8 +84,9 @@ def create_audio_clip(path:str, hash_value:str):
             Returns:
                 random_string (str): a random string generated
     """
+    folder_path = episode_path % {'folder_name' : hash_value}
     log.info("Creation of the clip folder")
-    mkdir(episode_path % {'folder_name' : hash_value})
+    mkdir(folder_path)
     log.done("Creation done !")
     clip = AudioFileClip(path)
     duration = int(clip.duration)
@@ -104,4 +108,4 @@ def create_audio_clip(path:str, hash_value:str):
            stdout=sp.DEVNULL
            )
     print()
-    return nb_clip
+    return nb_clip, folder_path
