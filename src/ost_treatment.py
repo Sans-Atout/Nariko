@@ -193,21 +193,6 @@ def test_music(_path:str):
     """
     return djv.recognize(FileRecognizer, _path)
 
-def add_one_file(_path):
-    """
-        Add music in DejaVu fingerprint database
-            Parameters:
-                _path (str): file path of the music that you want to add 
-            Returns:
-                _     (int): nothing
-    """
-    song_name = basename(_path)
-    log.info("File is : %s" % song_name)
-    log.info("Insert into DejaVu")
-    djv.fingerprint_file(_path, song_name)
-    log.done("complete !")
-    return 0
-
 def recover_ost(song_detected:DataFrame, clip_duration:int):
     """
         Recover all possible OST from a DejaVu detection Dataframe
