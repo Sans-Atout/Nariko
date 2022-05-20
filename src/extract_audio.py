@@ -8,7 +8,7 @@ from src.extract_anime_info import get_anime_info
 # Clip creation libraires
 from imageio_ffmpeg import get_ffmpeg_exe
 import subprocess as sp
-from moviepy.editor import AudioFileClip
+from moviepy.editor import VideoFileClip, AudioFileClip
 
 
 # Other external libraires
@@ -46,12 +46,14 @@ def extract_audio_from_video(video_path:str):
     log.info("The hash value for this path is : %s" % hash_value)
     # extract audio from video
     log.info("Extracting audio")
-    ffmpeg = get_ffmpeg_exe()
+    videoclip=VideoFileClip(video_path)
+    #print(videoclip, video_path)
+    audioclip=videoclip.audio
+    # save audio file
+    audioclip.write_audiofile(path)
+    audioclip.close()
+    videoclip.close()
 
-    sp.call([ffmpeg, "-y", "-i", video_path, path], 
-                stderr=sp.DEVNULL,
-                stdout=sp.DEVNULL
-            )
 
 
     log.done("File write in %s" % path)
