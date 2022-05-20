@@ -231,7 +231,6 @@ def treat_one_ost(ost_df:DataFrame,song_name:str,clip_duration:int):
     start_end_tupple = []
     episode_ost = []
 
-    # Recover all potential song 
     for x_id in range(len(all_ids) -1):
 
         if (not tmp["has_occurence"]) and (all_ids[x_id] +1) == all_ids[x_id+1]:
@@ -254,7 +253,6 @@ def treat_one_ost(ost_df:DataFrame,song_name:str,clip_duration:int):
                 start_time  = clip_id_to_seconds(tmp["start_time"], clip_duration)
                 end_time    = clip_id_to_seconds(tmp["end_time"], clip_duration)
                 start_end_tupple.append( (start_time, end_time) )
-                
             tmp = { 'has_occurence' : False, 'start_time' : -1, 'one_consecutive_gap' : -1, 'complete' : False, "end_time" : -1}
 
     if tmp["has_occurence"] and not tmp["complete"]:
@@ -262,7 +260,7 @@ def treat_one_ost(ost_df:DataFrame,song_name:str,clip_duration:int):
             start_time  = clip_id_to_seconds(tmp["start_time"], clip_duration)
             end_time    = clip_id_to_seconds(all_ids[len(all_ids) -1], clip_duration)
             start_end_tupple.append( (start_time, end_time) )
-
+    
     # Deduce if all potential song are a real song or not
     for start, end in start_end_tupple:
         tmp_score = []
@@ -270,11 +268,9 @@ def treat_one_ost(ost_df:DataFrame,song_name:str,clip_duration:int):
             clip_in_s = clip_id_to_seconds(row["clip_id"], clip_duration)
             if clip_in_s >= start and clip_in_s <= end:
                 tmp_score.append(row["song_score"])
-        
         if  mean(tmp_score) >= 50:
             episode_ost.append({"name" : song_name, "strat" : start, "end" : end})
         
-
     return episode_ost
 
 def clip_id_to_seconds(clip_id:int,clip_duration:int):

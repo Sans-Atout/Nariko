@@ -1,8 +1,6 @@
 #!/bin/python
-from src.extract_anime_info import get_anime_info
 from src.extract_audio import extract_audio_from_video, create_audio_clip
-from src.clean_audio import clean_all_audio
-from src.dejavu_interface import test_music
+from src.ost_treatment import episode_processing, recover_ost, get_folder_info
 from argparse import ArgumentParser
 
 #python librairie for log
@@ -16,6 +14,7 @@ log_path    = config.get("log", "path")
 extension   = config.get("log", "extension")
 
 log = Logger(log_path,log_level,service_name="nariko", log_extension=extension)
+
 if __name__ == '__main__':
     parser = ArgumentParser(description="Script allowing to add to the already seen database the musics of the various animes")
     parser.add_argument('-i','--input', type=str, required=True, help="Anime input file")
@@ -27,9 +26,21 @@ if __name__ == '__main__':
 
     # get all arguments
     video_path      = args.input
-    episode_name    = args.name
+    anime_name      = args.name
     saison_nb       = int(args.saison)
     episode_nb      = int(args.episode)
     is_oav          = args.oav
+    log.info("Process anime : %(name)s saison : %(saison)s episode : %(ep)s" % {"name" : anime_name, "saison" : saison_nb, "ep" : episode_nb})
+    log.info("Extracting audio...")
+    audio_path, hash_ = extract_audio_from_video(video_path)
+    log.done("Extracting audio complete")
+    log.info("Create all clip")
+    nb_clip, clip_folder = create_audio_clip(audio_path, hash_)
+    log.done("All clip are created successfully")
+    log.info("Recover Data Frame")
+    ep_name, duration = get_folder_info(hash_, clip_folder)
+    ep_df = episode_processing(clip_folder, duration)
 
-    
+    OST = recover_ost(ep_df,duration)
+
+    log.done("Processing audio complete")
