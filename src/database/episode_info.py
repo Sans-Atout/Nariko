@@ -33,13 +33,14 @@ episode_psql_creation = '''CREATE TABLE episode_info (
                                 PRIMARY KEY (id));'''
 
 insert_new_episode_psql = '''INSERT INTO 
-                                episode_info ( anime_name, saison, episode, clip_duration, hash, done_at ) 
-                                VALUES ( %(name)s, %(saison)s, %(episode)s, %(clip_duration)s, %(hash)s, %(done_at)s );'''
+                                episode_info ( anime_name, saison, episode, clip_duration, hash, done_at , is_oav) 
+                                VALUES ( %(name)s, %(saison)s, %(episode)s, %(clip_duration)s, %(hash)s, %(done_at)s, %(is_oav)s );'''
 
 purge_episode_table_psql = '''TRUNCATE TABLE episode_info;'''
 drop_episode_table_psql = '''DROP TABLE episode_info;'''
 
 is_in_db_psql = ''' SELECT id FROM episode_info WHERE anime_name=%(name)s AND saison=%(saison)s AND episode=%(episode)s ;'''
+
 
 def start_connexion():
     """
@@ -105,23 +106,23 @@ def episode_table_creation():
         log.error(str(error).replace('\n', ' '))
         return False
     
-def insert_new_episode(name:str,saison:int,episode:int, duration:int, _hash:str):
+def insert_new_episode(name:str,saison:float,episode:float, duration:int, _hash:str, is_oav:bool):
     """
         Insert a new episode into the episode database
             Parameters:
-                name    (str): name of the anime
-                saison  (int): saison number
-                episode (int): episode number
-                duration(int): duration of one clip
-                hash    (str): the episode hash
+                name      (str): name of the anime
+                saison  (float): saison number
+                episode (float): episode number
+                duration  (int): duration of one clip
+                hash      (str): the episode hash
             
             Return:
                 is_ok  (bool): is insert successfull or not
                 r_code  (int): how the function ended
     """
-    if not (type(name) == str and type(saison) == int and type(episode) == int and type(duration)== int and type(_hash) == str) :
+    if not (type(name) == str and type(saison) == float and type(episode) == float and type(duration)== int and type(_hash) == str) and type(is_oav) == bool:
         log.warning("name : %s, saison : %s, episode : %s" % (type(name),type(saison),type(episode)))
-        log.warning("clip duration : %s, hash : %s" % (type(duration), type(_hash)) )
+        log.warning("clip duration : %s, hash : %s, oav : %s" % (type(duration), type(_hash), type(is_oav)) )
         log.error("One of the parameter's type is wrong.")
         return False, 532
     is_ok, return_code = is_in_db(name,saison, episode)
@@ -136,7 +137,7 @@ def insert_new_episode(name:str,saison:int,episode:int, duration:int, _hash:str)
 
     try :
         done_at = datetime.timestamp(datetime.now())
-        cursor.execute(insert_new_episode_psql, {'name':name,'saison' : saison, 'episode': episode, 'clip_duration' : duration, 'hash' : _hash, 'done_at' : done_at})
+        cursor.execute(insert_new_episode_psql, {'name':name,'saison' : saison, 'episode': episode, 'clip_duration' : duration, 'hash' : _hash, 'done_at' : done_at, 'is_oav': is_oav})
         connexion.commit()
         end_connexion(connexion, cursor)
         return True, 200
@@ -145,20 +146,20 @@ def insert_new_episode(name:str,saison:int,episode:int, duration:int, _hash:str)
         log.error(error)
         return False, 400  
 
-def is_in_db(name:str,saison:int, episode:int):
+def is_in_db(name:str,saison:float, episode:float):
     """
         Insert a new episode into the episode database
             Parameters:
-                name    (str): name of the anime
-                saison  (int): saison number
-                episode (int): episode number
+                name      (str): name of the anime
+                saison  (float): saison number
+                episode (float): episode number
             
             Return:
                 is_ok  (bool): is insert successfull or not
                 r_code  (int): how the function ended
 
     """
-    if not (type(name) == str and type(saison) == int and type(episode) == int) :
+    if not (type(name) == str and type(saison) == float and type(episode) == float) :
         log.warning("name : %s, saison : %s, episode : %s" % (type(name),type(saison),type(episode)))
         log.error("One of the parameter's type is wrong.")
         return False, 532
@@ -173,8 +174,7 @@ def is_in_db(name:str,saison:int, episode:int):
 
     try :
         cursor.execute(is_in_db_psql, {'name':name,'saison' : saison, 'episode': episode})
-        is_in_db = cursor.fetchall() == None
-        
+        is_in_db = len(cursor.fetchall()) > 0         
         end_connexion(connexion, cursor)
         return is_in_db, 200
     

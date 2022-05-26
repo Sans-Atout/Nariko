@@ -30,12 +30,12 @@ def get_anime_info(file_path:str):
     file_name = basename(file_path)
     anime_info = parse(file_name)
 
-    anime_name = anime_info["anime_title"]
-    episode_nb = anime_info["episode_number"]
-    saison_nb = anime_info["anime_season"]
+    anime_name = anime_info["anime_title"] if "anime_title" in anime_info.keys() else file_name
+    episode_nb = anime_info["episode_number"] if "episode_number" in anime_info.keys() else 1
+    saison_nb = anime_info["anime_season"] if "anime_season" in anime_info.keys() else 1
     _type = anime_info["anime_type"] if "anime_type" in anime_info.keys() else None
     is_oav = _type in ["OAV", "OAD"] or '.' in episode_nb
 
-    return anime_name, saison_nb, episode_nb, is_oav
+    return anime_name, float(saison_nb), float(episode_nb), is_oav
 
 

@@ -3,6 +3,7 @@ from dejavu import Dejavu
 #python librairie for log
 from configparser import ConfigParser
 from python_tracer.Logger import VerboseLevel,Logger
+from psycopg2 import connect, Error
 
 #External librairie
 from os import listdir, rename
@@ -19,6 +20,7 @@ user        = config.get("database", "name")
 password    = config.get("database", "password")
 host        = config.get("host_info", "host")
 type_        = config.get("host_info", "type")
+port     = config.get("host_info", "port")
 
 log = Logger(log_path,log_level,service_name="dejavu-interface", log_extension=extension)
 
@@ -83,7 +85,7 @@ def start_connexion():
     """
     try:
         conn = connect(
-              user = username,
+              user = user,
               password = password,
               host = host,
               port = port,

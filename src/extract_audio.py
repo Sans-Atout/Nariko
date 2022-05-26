@@ -27,7 +27,7 @@ log = Logger(log_path,log_level,service_name="audio", log_extension=extension)
 # Audio file extract from an video file
 extract_path = "./tmp/audio-extract/extract-%(file_name)s.mp3"
 episode_path = "./tmp/audio-clip/%(folder_name)s/"
-clip_duration = 20 # clip duration in second
+clip_duration = 11 # clip duration in second
 
 def extract_audio_from_video(video_path:str):
     """
@@ -53,9 +53,6 @@ def extract_audio_from_video(video_path:str):
     audioclip.write_audiofile(path)
     audioclip.close()
     videoclip.close()
-
-
-
     log.done("File write in %s" % path)
 
     return path, hash_value
@@ -92,7 +89,7 @@ def create_audio_clip(path:str, hash_value:str):
     log.done("Creation done !")
     clip = AudioFileClip(path)
     duration = int(clip.duration)
-    log.info("The misoc duration is : %s" % duration)
+    log.info("The music duration is : %s" % duration)
     nb_clip = 0
     length = duration-clip_duration
     ffmpeg = get_ffmpeg_exe()
@@ -110,4 +107,4 @@ def create_audio_clip(path:str, hash_value:str):
            stdout=sp.DEVNULL
            )
     print()
-    return nb_clip, folder_path
+    return nb_clip, clip_duration, folder_path

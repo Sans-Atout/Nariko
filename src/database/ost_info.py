@@ -174,9 +174,7 @@ def insert_new_ost(anime:int, name:str, start_t:int, end_t:int):
         log.warning("anime_id : %s, anime name : %s, start time : %s, end time : %s" % (type(anime),type(name),type(start_t), type(end_t)))
         log.error("One of the parameter's type is wrong.")
         return False, 532
-    is_ok, return_code = is_in_db(name,saison, episode)
-    if return_code > 300:
-        return False, 533
+
     _ = start_connexion()
     if not _["result"]:
         log.error(_["info"])

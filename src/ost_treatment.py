@@ -207,7 +207,7 @@ def recover_ost(song_detected:DataFrame, clip_duration:int):
 
     sorted_song = song_detected.groupby(['song_id'])['clip_id', 'song_score']
     for _key in sorted_song.groups.keys():
-        song = _key[2:len(_key)-1]
+        song = _key.decode('utf-8','ignore')#[2:len(_key)-1]
         _episode = treat_one_ost(sorted_song.get_group(_key), song, clip_duration)
         episode_ost.extend(_episode)
     return episode_ost

@@ -35,7 +35,7 @@ if __name__ == '__main__':
     audio_path, hash_ = extract_audio_from_video(video_path)
     log.done("Extracting audio complete")
     log.info("Create all clip")
-    nb_clip, clip_folder = create_audio_clip(audio_path, hash_)
+    nb_clip, duration, clip_folder = create_audio_clip(audio_path, hash_)
     log.done("All clip are created successfully")
     log.info("Recover Data Frame")
     ep_name, duration = get_folder_info(hash_, clip_folder)
