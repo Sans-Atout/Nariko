@@ -37,7 +37,7 @@ insert_new_episode_psql = '''INSERT INTO
                                 VALUES ( %(name)s, %(saison)s, %(episode)s, %(clip_duration)s, %(hash)s, %(done_at)s );'''
 
 purge_episode_table_psql = '''TRUNCATE TABLE episode_info;'''
-purge_episode_table_psql = '''DROP TABLE episode_info;'''
+drop_episode_table_psql = '''DROP TABLE episode_info;'''
 
 is_in_db_psql = ''' SELECT id FROM episode_info WHERE anime_name=%(name)s AND saison=%(saison)s AND episode=%(episode)s ;'''
 
@@ -136,7 +136,7 @@ def insert_new_episode(name:str,saison:int,episode:int, duration:int, _hash:str)
 
     try :
         done_at = datetime.timestamp(datetime.now())
-        cursor.execute(is_in_db_psql, {'name':name,'saison' : saison, 'episode': episode, 'clip_duration' : duration, 'hash' : _hash, 'done_at' : done_at})
+        cursor.execute(insert_new_episode_psql, {'name':name,'saison' : saison, 'episode': episode, 'clip_duration' : duration, 'hash' : _hash, 'done_at' : done_at})
         connexion.commit()
         end_connexion(connexion, cursor)
         return True, 200
@@ -228,7 +228,7 @@ def drop_table():
     connexion, cursor = _["info"]
 
     try :
-        cursor.execute(purge_episode_table_psql)
+        cursor.execute(drop_episode_table_psql)
         connexion.commit()
         end_connexion(connexion, cursor)
         return True, 200

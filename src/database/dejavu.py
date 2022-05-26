@@ -37,6 +37,11 @@ log.done("Object succesfuly created !")
 
 romanji_converter = Cutlet()
 
+fgprint_drop_table = '''DROP TABLE fingerprints;'''
+songs_drop_table = '''DROP TABLE songs;'''
+fgprint_purge_table = '''TRUNCATE TABLE fingerprints; '''
+songs_purge_table = '''TRUNCATE TABLE songs; '''
+
 def add_fingerprint(_path):
     path = _path if _path[-1] == "/" else _path+'/'
     all_files = listdir(path)
@@ -67,3 +72,100 @@ def add_one_file(_path):
     djv.fingerprint_file(_path, song_name)
     log.done("complete !")
     return 0
+
+
+def start_connexion():
+    """
+        Database connexion creation
+            Returns:
+                result (bool): is connexion operationnal
+                info (object): connexion and cursor object or error message
+    """
+    try:
+        conn = connect(
+              user = username,
+              password = password,
+              host = host,
+              port = port,
+              database = db_name
+        )
+        cur = conn.cursor()
+        return {'result' : True, 'info' : (conn, cur)}
+    except (Exception, Error) as error:
+        log.error(error)
+        return {'result' : False, 'info' : str(error)}
+
+def end_connexion(con, cur):
+    """
+        Close connexion to the database
+            Parameters:
+                con  (object): PSQL connexion object
+                cur  (object): PSQL cursor object
+            Returns:
+                _ (bool): is connexion ended succesfully
+    """
+    try:
+        cur.close()
+        con.close()
+        return True
+    except Exception as e:
+        log.error(e)
+        return False
+
+def purge_table():
+    """
+        Purging the DejaVu table
+            Parameters:
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(fgprint_purge_table)
+        cursor.execute(songs_purge_table)
+        connexion.commit()
+        end_connexion(connexion, cursor)
+        return True, 200
+
+    
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400
+
+def drop_table():
+    """
+        Drop the episode_info table
+            Parameters:
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(fgprint_drop_table)
+        cursor.execute(songs_drop_table)
+        connexion.commit()
+        end_connexion(connexion, cursor)
+        return True, 200
+
+    
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400
