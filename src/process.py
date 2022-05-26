@@ -4,6 +4,13 @@ from python_tracer.Logger import VerboseLevel,Logger
 
 from os import listdir
 from os.path import exists, isdir
+
+from src.extract_anime_info import get_anime_info
+from src.database.episode_info import insert_new_episode, is_in_db, get_ep_id
+from src.database.ost_info import insert_new_ost
+from src.extract_audio import extract_audio_from_video, create_audio_clip
+from src.ost_treatment import episode_processing, recover_ost, get_folder_info
+
 config = ConfigParser()
 config.read("nariko.ini")
 log_level       = int(config.get("log", "prod_env"))
@@ -58,5 +65,38 @@ def process_folder(folder_path:str,is_recursive:bool):
                 folder_path     (str): input dir path
                 is_recursive   (bool): is the file is recursive
     """
-    #TODO 
-    pass
+    intersting_file = get_all_files(folder_path, is_recursive)
+    for video_path in intersting_file:
+        _name, _saison, _episode, _isOAV = get_anime_info(video_path)
+        in_db, r_code = is_in_db(_name,_saison, _episode)
+        if r_code != 200:
+            continue
+        if in_db:
+            log.error("Anime All ready in db")
+            continue
+
+        log.info("Process anime : %(name)s saison : %(saison)s episode : %(ep)s" % {"name" : _name, "saison" : _saison, "ep" : _episode})
+        log.info("Extracting audio...")
+        audio_path, hash_ = extract_audio_from_video(video_path)
+        log.done("Extracting audio complete")
+        log.info("Create all clip")
+        nb_clip, _d, clip_folder = create_audio_clip(audio_path, hash_)
+        log.done("Complete")
+        log.info("Upload episode in database")
+        insert_new_episode(_name, _saison, _episode, _d, hash_,_isOAV)
+        _id, r_code = get_ep_id(_name, _saison, _episode)
+        log.done("Complete")
+        log.done("All clip are created successfully")
+        log.info("Recover Data Frame")
+        ep_name, duration = get_folder_info(hash_, clip_folder)
+        ep_df = episode_processing(clip_folder, duration)
+        log.info("Recover OST")
+        _OST = recover_ost(ep_df,duration)
+        log.done("Complete")
+        log.info("Upload ost in database")
+        log.debug(_OST)
+        for _ost in _OST:
+            log.debug(_ost)
+            insert_new_ost(_id, _ost["name"], _ost["strat"], _ost["end"])
+        
+        log.done("Complete")
