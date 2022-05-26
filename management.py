@@ -10,8 +10,10 @@ from dejavu import Dejavu
 from argparse import ArgumentParser
 from shutil import copy 
 
-# database creation function
+# database function
 from src.database.episode_info import episode_table_creation as ep_create, purge_table as ep_purge, drop_table as ep_drop
+from src.database.ost_info import ost_table_creation as ost_creation, purge_table as ost_purge, drop_table as ost_drop
+from src.database.dejavu import drop_table as dv_drop, purge_table as dv_purge
 
 # Log variable initialisation
 config = ConfigParser()
@@ -61,6 +63,7 @@ if __name__ == '__main__':
     if _purge:
         log.info("Purge project tables :")
         ep_purge()
+        ost_purge()
         log.done("All project specific tables are purge now")
         log.info("Purge DejaVu tables :")
         log.warning("#TODO")
@@ -75,8 +78,16 @@ if __name__ == '__main__':
         ep_drop()
         log.debug("table episode_info [2/2] : create table")
         ep_create()
-        log.error("Database Reset is not fully implemented")
-        # TODO : implement reset procedure
+        log.warning("table ost_info [1/2] : dropping")
+        ost_drop()
+        log.debug("table episode_info [2/2] : create table")
+        ost_creation()
+
+        log.warning("table episode_info [1/2] : dropping")
+        dv_drop()
+        log.debug("table episode_info [2/2] : create table")
+        djv = Dejavu(CONFIG)
+        log.done("All tables have been reset")
         exit(0)
 
     if _init:
@@ -87,6 +98,11 @@ if __name__ == '__main__':
         log.info("Episode information table creation")
         ep_create()
         log.done("Table creation succesfuly created")
+
+        log.info("OST information table creation")
+        ost_creation()
+        log.done("Table creation succesfuly created")
+
 
         log.info("Project folder creation")
 
