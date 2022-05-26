@@ -237,3 +237,39 @@ def drop_table():
     except (Exception, Error) as error:
         log.error(error)
         return False, 400
+
+
+def get_ep_id(name:str,saison:float, episode:float):
+    """
+        Insert a new episode into the episode database
+            Parameters:
+                name      (str): name of the anime
+                saison  (float): saison number
+                episode (float): episode number
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+    if not (type(name) == str and type(saison) == float and type(episode) == float) :
+        log.warning("name : %s, saison : %s, episode : %s" % (type(name),type(saison),type(episode)))
+        log.error("One of the parameter's type is wrong.")
+        return False, 532
+
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(is_in_db_psql, {'name':name,'saison' : saison, 'episode': episode})
+        anime_id = cursor.fetchall()
+        end_connexion(connexion, cursor)
+        return anime_id[0][0], 200
+    
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400
