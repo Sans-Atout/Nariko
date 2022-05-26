@@ -70,7 +70,7 @@ There is no need to create any database for the DejaVu code. The tables used by 
 
 # Todo List :
 
-* [ ] Extract anime name from folder or file
+* [x] Extract anime name from folder or file
 * [ ] Save in a database which files are associated with which "hash" (In progress)
 * [x] Extract audio from video file
 * [x] Create multiple audio clip
@@ -96,4 +96,5 @@ When retrieving multiple results, the results must be passed as a percentage.
 
 # Open-Source project used
 
-## [worldveil/dejavu](https://github.com/worldveil/dejavu)
+## [worldveil/dejavu](https://github.com/worldveil/dejavu) : Sound recognition
+## [igorcmoura/anitopy](https://github.com/igorcmoura/anitopy) : Anime info extraction 

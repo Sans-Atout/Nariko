@@ -25,7 +25,7 @@ episode_psql_creation = '''CREATE TABLE episode_info (
                                 id SERIAL NOT NULL,
                                 anime_name VARCHAR(100) NOT NULL,
                                 saison INT NOT NULL ,
-                                episode INT NOT NULL ,
+                                episode FLOAT NOT NULL ,
                                 clip_duration INT NOT NULL ,
                                 hash VARCHAR(42) NOT NULL,
                                 done_at INT NULL,
