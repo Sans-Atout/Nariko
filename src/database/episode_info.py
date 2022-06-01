@@ -5,6 +5,8 @@ from python_tracer.Logger import VerboseLevel,Logger
 
 from datetime import datetime
 from psycopg2 import connect, Error
+from time import localtime, strftime
+from csv import writer
 
 config = ConfigParser()
 config.read("nariko.ini")
@@ -41,6 +43,9 @@ drop_episode_table_psql = '''DROP TABLE episode_info;'''
 
 is_in_db_psql = ''' SELECT id FROM episode_info WHERE anime_name=%(name)s AND saison=%(saison)s AND episode=%(episode)s ;'''
 
+dump_db_psql = '''SELECT * FROM episode_info;'''
+_PATH = "./output/%(timestamp)s_episode.csv"
+CSV_HEADER = ["Anime Name", "Saison number", "Episode Number", "Clip duration", "Episode hash", "Done At", "Is OAV"]
 
 def start_connexion():
     """
@@ -238,7 +243,6 @@ def drop_table():
         log.error(error)
         return False, 400
 
-
 def get_ep_id(name:str,saison:float, episode:float):
     """
         Insert a new episode into the episode database
@@ -270,6 +274,52 @@ def get_ep_id(name:str,saison:float, episode:float):
         end_connexion(connexion, cursor)
         return anime_id[0][0], 200
     
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400
+
+def dump_db():
+    """
+        Dump episode database
+            Parameters:
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+
+    timestamp = strftime("%Y_%m_%d_%H_%M_%S", localtime())
+    output_ = open(_PATH % {"timestamp" : timestamp}, 'w+')
+
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(dump_db_psql)
+        all_episode = cursor.fetchall()
+        end_connexion(connexion, cursor)
+        if len(all_episode) < 0:
+            return False, 200
+        log.info("Found episode record in database")
+        
+        all_ep_important_info = []
+        for _ep in all_episode:
+            try:
+                _id, _name, _saison, _ep, _clip_d, _hash, _timestamp, _isOAV = _ep
+                all_ep_important_info.append([_name, _saison, _ep, _clip_d, _hash, _timestamp, _isOAV])
+            except (Exception, Error) as error:
+                pass
+        log.info("Writting in CSV file")
+        csv_writer = writer(output_)
+        csv_writer.writerow(CSV_HEADER)
+        csv_writer.writerows(all_ep_important_info)
+        log.done("Writting in file complete")
+        return True, 200
     except (Exception, Error) as error:
         log.error(error)
         return False, 400

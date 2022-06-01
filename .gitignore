@@ -2,7 +2,7 @@
 tmp/audio-extract/*
 tmp/audio-clip/*
 tmp/audio-clean/*
-
+output/
 *.ini
 test.py
 

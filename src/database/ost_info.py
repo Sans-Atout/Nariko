@@ -4,6 +4,8 @@ from python_tracer.Logger import VerboseLevel,Logger
 
 from datetime import datetime
 from psycopg2 import connect, Error
+from time import localtime, strftime
+from csv import writer
 
 config = ConfigParser()
 config.read("nariko.ini")
@@ -36,6 +38,10 @@ insert_new_ost_psql = ''' INSERT INTO ost_info
 
 purge_ost_info_table_psql = '''TRUNCATE TABLE ost_info;'''
 drop_ost_info_table_psql = '''DROP TABLE ost_info;'''
+
+dump_db_psql = '''SELECT * FROM ost_info;'''
+_PATH = "./output/%(timestamp)s_ost_info.csv"
+CSV_HEADER = ["Episode ID", "Song Name", "start time", "end time", "Done At"]
 
 def start_connexion():
     """
@@ -192,3 +198,49 @@ def insert_new_ost(anime:int, name:str, start_t:int, end_t:int):
         log.error(error)
         return False, 400  
 
+def dump_db():
+    """
+        Dump OST database
+            Parameters:
+            
+            Return:
+                is_ok  (bool): is insert successfull or not
+                r_code  (int): how the function ended
+
+    """
+
+    timestamp = strftime("%Y_%m_%d_%H_%M_%S", localtime())
+    output_ = open(_PATH % {"timestamp" : timestamp}, 'w+')
+
+    _ = start_connexion()
+    if not _["result"]:
+        log.error(_["info"])
+        return False, 532
+    
+    connexion, cursor = _["info"]
+
+    try :
+        cursor.execute(dump_db_psql)
+        all_ost = cursor.fetchall()
+        end_connexion(connexion, cursor)
+        if len(all_ost) < 0:
+            return False, 200
+        log.info("Found ost record in database")
+        
+        all_ost_important_info = []
+        for _ost in all_ost:
+            try:
+                #log.debug(_ost)
+                _id, _ep_id, _song_name, _start_t, _end_t, _timestamp = _ost
+                all_ost_important_info.append([_ep_id, _song_name, _start_t, _end_t, _timestamp])
+            except (Exception, Error) as error:
+                pass
+        log.info("Writting in CSV file")
+        csv_writer = writer(output_)
+        csv_writer.writerow(CSV_HEADER)
+        csv_writer.writerows(all_ost_important_info)
+        log.done("Writting in file complete")
+        return True, 200
+    except (Exception, Error) as error:
+        log.error(error)
+        return False, 400

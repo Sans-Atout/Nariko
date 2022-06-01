@@ -22,7 +22,7 @@ host        = config.get("host_info", "host")
 type_        = config.get("host_info", "type")
 port     = config.get("host_info", "port")
 
-log = Logger(log_path,log_level,service_name="dejavu-interface", log_extension=extension)
+log = Logger(log_path,log_level,service_name="dejavu", log_extension=extension)
 
 CONFIG = {
     "database": {
@@ -51,10 +51,10 @@ def add_fingerprint(_path):
     log.info("Add all file to DejaVu")
     for f_id in range(_l):
         romanji_name = romanji_converter.romaji(all_files[f_id])
-        old_filename = path + all_files[f_id]
-        new_filename = path + romanji_name
-        rename(old_filename, new_filename)
-        djv.fingerprint_file(file_path=new_filename,song_name=romanji_name)
+        #old_filename = path + all_files[f_id]
+        #new_filename = path + romanji_name
+        #rename(old_filename, new_filename)
+        djv.fingerprint_file(file_path=path + all_files[f_id],song_name=romanji_name)
         log.avancement(100*(f_id+1)/_l, str(f_id+1)+"/"+str(_l))
     print()
     log.done("Rename complete")
