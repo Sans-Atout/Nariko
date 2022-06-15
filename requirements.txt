@@ -16,3 +16,11 @@ mysql-connector-python>=8.0.17
 psycopg2>=2.8.3
 plotly>=5.7.0
 anitopy>=2.1.0
+
+# Vocal Remover librairies
+tqdm>=4.30
+librosa>=0.6.3,<0.9
+opencv_python>=4.2.0
+imageio_ffmpeg>=0.4.7
+torch>=1.5.1
+torchvision>=0.6.1
