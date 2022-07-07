@@ -85,9 +85,9 @@ if __name__ == '__main__':
         # log.debug("table episode_info [2/2] : create table")
         # ost_creation()
 
-        log.warning("table episode_info [1/2] : dropping")
+        log.warning("table dejavu [1/2] : dropping")
         dv_drop()
-        log.debug("table episode_info [2/2] : create table")
+        log.debug("table dejavu [2/2] : create table")
         djv = Dejavu(CONFIG)
         log.done("All tables have been reset")
         exit(0)

@@ -245,13 +245,13 @@ class Dejavu:
         fingerprints = set()
         channel_amount = len(channels)
         for channeln, channel in enumerate(channels, start=1):
-            if print_output:
-                print(f"Fingerprinting channel {channeln}/{channel_amount} for {file_name}")
+            # if print_output:
+            #     print(f"Fingerprinting channel {channeln}/{channel_amount} for {file_name}")
 
             hashes = fingerprint(channel, Fs=fs)
 
-            if print_output:
-                print(f"Finished channel {channeln}/{channel_amount} for {file_name}")
+            # if print_output:
+            #     print(f"Finished channel {channeln}/{channel_amount} for {file_name}")
 
             fingerprints |= set(hashes)
 

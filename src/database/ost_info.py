@@ -40,6 +40,7 @@ purge_ost_info_table_psql = '''TRUNCATE TABLE ost_info;'''
 drop_ost_info_table_psql = '''DROP TABLE ost_info;'''
 
 dump_db_psql = '''SELECT * FROM ost_info;'''
+get_hash_id_psql = '''SELECT id, hash FROM episode_info;'''
 _PATH = "./output/%(timestamp)s_ost_info.csv"
 CSV_HEADER = ["Episode ID", "Song Name", "start time", "end time", "Done At"]
 
@@ -220,6 +221,8 @@ def dump_db():
     connexion, cursor = _["info"]
 
     try :
+        cursor.execute(get_hash_id_psql)
+        hash_id = cursor.fetchall()
         cursor.execute(dump_db_psql)
         all_ost = cursor.fetchall()
         end_connexion(connexion, cursor)
@@ -231,10 +234,11 @@ def dump_db():
         for _ost in all_ost:
             try:
                 #log.debug(_ost)
-                _id, _ep_id, _song_name, _start_t, _end_t, _timestamp = _ost
-                all_ost_important_info.append([_ep_id, _song_name, _start_t, _end_t, _timestamp])
+                dump_array = get_array(hash_id, _ost)
+                if len(dump_array) > 0:
+                    all_ost_important_info.append(dump_array)
             except (Exception, Error) as error:
-                pass
+                log.error(error)
         log.info("Writting in CSV file")
         csv_writer = writer(output_)
         csv_writer.writerow(CSV_HEADER)
@@ -244,3 +248,25 @@ def dump_db():
     except (Exception, Error) as error:
         log.error(error)
         return False, 400
+
+
+def get_array(hash_id:list, ost:list):
+    _id, _ep_id, _song_name, _start_t, _end_t, _timestamp = ost
+
+    for hash_association in hash_id:
+        id_, hash_ = hash_association  
+        if _ep_id == id_: 
+            return [hash_, _song_name, _start_t, _end_t, _timestamp]
+    return []
+
+# def get_hash_id():
+#     _ = start_connexion()
+#     if not _["result"]:
+#         log.error(_["info"])
+#         return False, 532
+    
+#     connexion, cursor = _["info"]
+
+#     try :
+#         all_hash_id = get_hash_id()
+       

@@ -2,8 +2,9 @@
 from configparser import ConfigParser
 from python_tracer.Logger import VerboseLevel,Logger
 
-from os import listdir
+from os import listdir, remove
 from os.path import exists, isdir
+from csv import reader, writer
 
 from src.extract_anime_info import get_anime_info
 from src.database.episode_info import insert_new_episode, is_in_db, get_ep_id
@@ -94,9 +95,23 @@ def process_folder(folder_path:str,is_recursive:bool):
         _OST = recover_ost(ep_df,duration)
         log.done("Complete")
         log.info("Upload ost in database")
-        log.debug(_OST)
+        log.info("We found %(nb_ost)s OST in this episode" % {"nb_ost": len(_OST)})
         for _ost in _OST:
             log.debug(_ost)
             insert_new_ost(_id, _ost["name"], _ost["strat"], _ost["end"])
         
-        log.done("Complete")
+    log.info("Erase temporary folder")
+    #erase_temporary_folder()
+    log.done("Complete")
+
+def erase_temporary_folder():
+    log.info("Erasing audio clip [1/2]")
+    all_extract = listdir("./tmp/audio-clip/")
+    for file in all_extract:
+        remove("./tmp/audio-clip/"+str(file))
+    log.done("Erasing audio clip complete [1/2]")
+    log.info("Erasing audio extract [2/2]")
+    all_extract = listdir("./tmp/audio-extract/")
+    for file in all_extract:
+        remove("./tmp/audio-extract/"+str(file))  
+    log.done("Erasing audio extract complete [2/2]")
