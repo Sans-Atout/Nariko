@@ -11,9 +11,11 @@ from argparse import ArgumentParser
 from shutil import copy 
 
 # database function
-from src.database.episode_info import episode_table_creation as ep_create, purge_table as ep_purge, drop_table as ep_drop, dump_db as episode_dump
-from src.database.ost_info import ost_table_creation as ost_creation, purge_table as ost_purge, drop_table as ost_drop, dump_db as ost_dump
+from src.database.episode_info import episode_table_creation as ep_create, purge_table as ep_purge, drop_table as ep_drop
+from src.database.ost_info import ost_table_creation as ost_creation, purge_table as ost_purge, drop_table as ost_drop
 from src.database.dejavu import drop_table as dv_drop, purge_table as dv_purge
+
+from src.process import dumping_all_database
 
 # Log variable initialisation
 config = ConfigParser()
@@ -121,8 +123,7 @@ if __name__ == '__main__':
 
     if _dump:
         log.debug("Dumping episode info table")
-        ep_bool , result = episode_dump()
-        ost_bool, result = ost_dump()
+        dumping_all_database()
         log.done("Dumping complete")
 
         exit(0)

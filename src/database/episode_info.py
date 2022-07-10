@@ -6,7 +6,6 @@ from python_tracer.Logger import VerboseLevel,Logger
 from datetime import datetime
 from psycopg2 import connect, Error
 from time import localtime, strftime
-from csv import writer
 
 config = ConfigParser()
 config.read("nariko.ini")
@@ -289,9 +288,6 @@ def dump_db():
 
     """
 
-    timestamp = strftime("%Y_%m_%d_%H_%M_%S", localtime())
-    output_ = open(_PATH % {"timestamp" : timestamp}, 'w+')
-
     _ = start_connexion()
     if not _["result"]:
         log.error(_["info"])
@@ -314,12 +310,7 @@ def dump_db():
                 all_ep_important_info.append([_name, _saison, _ep, _clip_d, _hash, _timestamp, _isOAV])
             except (Exception, Error) as error:
                 pass
-        log.info("Writting in CSV file")
-        csv_writer = writer(output_)
-        csv_writer.writerow(CSV_HEADER)
-        csv_writer.writerows(all_ep_important_info)
-        log.done("Writting in file complete")
-        return True, 200
+        return True, all_ep_important_info
     except (Exception, Error) as error:
         log.error(error)
         return False, 400

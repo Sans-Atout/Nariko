@@ -9,6 +9,10 @@ from csv import reader, writer
 from src.extract_anime_info import get_anime_info
 from src.database.episode_info import insert_new_episode, is_in_db, get_ep_id
 from src.database.ost_info import insert_new_ost
+
+from src.database.episode_info import dump_db as episode_dump
+from src.database.ost_info import dump_db as ost_dump
+
 from src.extract_audio import extract_audio_from_video, create_audio_clip
 from src.ost_treatment import episode_processing, recover_ost, get_folder_info
 
@@ -115,3 +119,105 @@ def erase_temporary_folder():
     for file in all_extract:
         remove("./tmp/audio-extract/"+str(file))  
     log.done("Erasing audio extract complete [2/2]")
+
+
+def dumping_all_database():
+    log.info("Dumping all database")
+    is_ok_ep, episode_dp = episode_dump()
+    is_ok_ost, ost_dp = ost_dump()
+    log.done("Dumping complete !")
+    log.info("We found %(episode_nb)s episode and %(ost_nb)s ost" % {'episode_nb':len(episode_dp), 'ost_nb': len(ost_dp)})
+    log.info("Removing duplicates")
+
+    _all_ready_done = []
+    ost_remove_dupli = []
+    episode_remove_dupli = []
+
+    for episode_ in episode_dp:
+        name, saison, episode, clip_d, hash_, timestamp, bool_ = episode_
+        if (name, saison, episode) in _all_ready_done:
+            log.error("Anime : %(name)s, Saison : %(saison)s, Episode : %(episode)s is duplicate" % {"name" : name, "saison" : saison, "episode" : episode})
+            continue
+        _all_ready_done.append((name, saison, episode))
+        episode_remove_dupli.append(episode_)
+        for _ost in ost_dp:
+            ep_id, name, start, end, timestamp = _ost
+            if ep_id == hash_:
+                ost_remove_dupli.append(_ost) 
+
+    log.done("Removing duplicate complete")
+    log.info("We found %(episode_nb)s episode and %(ost_nb)s ost" % {'episode_nb':len(episode_remove_dupli), 'ost_nb': len(ost_remove_dupli)})
+
+    log.info("Creating Anime CSV file")
+    anime_ = {}
+    for name, saison, episode, clip_d, hash_, timestamp, bool_ in episode_remove_dupli:
+        if name not in anime_.keys():
+            anime_[name] = {}
+            anime_[name]["max_episode"] = episode
+            anime_[name]["episode_done"] = 1
+            anime_[name]["saison"] = saison
+        else:
+            anime_[name]["max_episode"] = max(anime_[name]["max_episode"], episode)
+            anime_[name]["episode_done"] = 1 + anime_[name]["episode_done"]
+            anime_[name]["saison"] = max(saison,anime_[name]["saison"])
+    log.info("We found %(anime)s anime(s)" % {"anime" : len(anime_)})
+    log.info("Creating csv file")
+
+    all_anime   = []
+    all_saison  = []
+
+    for name in anime_.keys():
+        name_       = name
+        max_        = anime_[name]["max_episode"]
+        done_       = anime_[name]["episode_done"]
+        saison_     = anime_[name]["saison"]
+        complete_   = done_ >= saison_*12
+        all_anime.append((name_,saison_, int(max_), done_, complete_))
+        if saison_ == 1:
+            all_saison.append((name_,"Saison %s" % saison_, int(max_), done_))
+        else: 
+            tmp_saison = {}
+            for name, saison, episode, clip_d, hash_, timestamp, bool_ in episode_remove_dupli:
+                saison = int(saison)
+                if name_ == name:
+                    if saison not in tmp_saison.keys():
+                        tmp_saison[saison] = {}
+                        tmp_saison[saison]["max"]   = episode
+                        tmp_saison[saison]["done"]  = 1
+                    else:
+                        tmp_saison[saison]["max"] = max(episode, tmp_saison[saison]["max"])
+                        tmp_saison[saison]["done"]  = 1 + tmp_saison[saison]["done"]
+            
+            for saison_nb in tmp_saison.keys():
+                max_    = tmp_saison[saison_nb]["max"]
+                done_   = tmp_saison[saison_nb]["done"]
+                all_saison.append((name_,"Saison %s" % saison_nb, int(max_), done_))
+    log.done("Complete")
+
+    log.info("Writing in CSV file")
+
+    log.info("[1/4] Anime csv file")
+    csv_file = open("./output/anime.csv","w+")
+    csv_writer = writer(csv_file)
+    csv_writer.writerow(["name", "saison", "max", "done","complete"])
+    csv_writer.writerows(all_anime)
+
+    log.info("[2/4] Saison csv file")
+    csv_file = open("./output/saison.csv","w+")
+    csv_writer = writer(csv_file)
+    csv_writer.writerow(["anime", "saison", "episode", "done"])
+    csv_writer.writerows(all_saison)
+
+    log.info("[3/4] Episode csv file")
+    csv_file = open("./output/episode.csv","w+")
+    csv_writer = writer(csv_file)
+    csv_writer.writerow(["name", "saison", "episode", "clip", "hash","done_at","is_oav"])
+    csv_writer.writerows(episode_remove_dupli)
+
+    log.info("[4/4] OST csv file")
+    csv_file = open("./output/ost.csv","w+")
+    csv_writer = writer(csv_file)
+    csv_writer.writerow(["Episode ID", "Song Name", "start time", "end time", "Done At"])
+    csv_writer.writerows(ost_remove_dupli)
+
+    log.done("Writing complete")

@@ -211,7 +211,7 @@ def dump_db():
     """
 
     timestamp = strftime("%Y_%m_%d_%H_%M_%S", localtime())
-    output_ = open(_PATH % {"timestamp" : timestamp}, 'w+')
+    #output_ = open(_PATH % {"timestamp" : timestamp}, 'w+')
 
     _ = start_connexion()
     if not _["result"]:
@@ -239,12 +239,7 @@ def dump_db():
                     all_ost_important_info.append(dump_array)
             except (Exception, Error) as error:
                 log.error(error)
-        log.info("Writting in CSV file")
-        csv_writer = writer(output_)
-        csv_writer.writerow(CSV_HEADER)
-        csv_writer.writerows(all_ost_important_info)
-        log.done("Writting in file complete")
-        return True, 200
+        return True, all_ost_important_info
     except (Exception, Error) as error:
         log.error(error)
         return False, 400
