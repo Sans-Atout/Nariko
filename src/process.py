@@ -174,7 +174,7 @@ def dumping_all_database():
         complete_   = done_ >= saison_*12
         all_anime.append((name_,saison_, int(max_), done_, complete_))
         if saison_ == 1:
-            all_saison.append((name_,"Saison %s" % saison_, int(max_), done_))
+            all_saison.append((name_,"Saison %s" % saison_, saison_, int(max_), done_))
         else: 
             tmp_saison = {}
             for name, saison, episode, clip_d, hash_, timestamp, bool_ in episode_remove_dupli:
@@ -191,7 +191,7 @@ def dumping_all_database():
             for saison_nb in tmp_saison.keys():
                 max_    = tmp_saison[saison_nb]["max"]
                 done_   = tmp_saison[saison_nb]["done"]
-                all_saison.append((name_,"Saison %s" % saison_nb, int(max_), done_))
+                all_saison.append((name_,"Saison %s" % saison_nb, saison_nb, int(max_), done_))
     log.done("Complete")
 
     log.info("Writing in CSV file")
@@ -205,7 +205,7 @@ def dumping_all_database():
     log.info("[2/4] Saison csv file")
     csv_file = open("./output/saison.csv","w+")
     csv_writer = writer(csv_file)
-    csv_writer.writerow(["anime", "saison", "episode", "done"])
+    csv_writer.writerow(["anime", "saison", "saison_nb", "episode", "done"])
     csv_writer.writerows(all_saison)
 
     log.info("[3/4] Episode csv file")
